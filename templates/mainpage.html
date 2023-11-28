@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Main Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .info-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin-bottom: 15px;
+        }
+        .info-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-group button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info-container">
+        <h2 id="loggedInUsername">ユーザー [username]</h2>
+    </div>
+
+    <div class="info-container">
+        <div class="input-group">
+            <label for="gender">性別:</label>
+            <select id="gender" name="gender">
+                <option value="male">男</option>
+                <option value="female">女</option>
+            </select>
+        </div>
+        
+        <div class="input-group">
+            <label for="birthdate">生年月日:</label>
+            <input type="date" id="birthdate" name="birthdate">
+        </div>
+        
+        <div class="input-group">
+            <label for="weight">体重 (kg):</label>
+            <input type="number" id="weight" name="weight" step="0.1" placeholder="体重を入力してください">
+        </div>
+        <button class = "btn-group" onclick="saveUserInfo()">確認</button>
+    </div>
+
+    <script>
+        // 此处可以从localStorage或其他来源获取用户名，并显示在页面上
+        let username = localStorage.getItem('loggedInUser');
+        if (username) {
+            document.getElementById('loggedInUsername').textContent = "ユーザー " + username;
+        }
+    </script>
+    <script src="static/flask.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Main Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .upload-area {
+            width: 300px;
+            height: 200px;
+            border: 2px dashed #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-group button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-area" id="dropZone">
+        draft or select image
+        <input type="file" id="fileInput" style="display:none;" multiple>
+    </div>
+    <ul id="fileList"></ul>
+    <ul id="results"></ul>
+    <br>
+    <button class = "btn-group" onclick="submitFiles()">確定</button>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "#eee";
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "transparent";
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "transparent";
+            // 合并新旧文件
+            fileInput.files = new FileListItems([...fileInput.files, ...e.dataTransfer.files]);
+            updateFileList();
+        });
+
+        fileInput.addEventListener('change', updateFileList);
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            Array.from(fileInput.files).forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file.name;
+                fileList.appendChild(li);
+            });
+        }
+
+        function submitFiles() {
+            if (!fileInput.files.length) {
+                alert("ファイルを選択してください。");
+                return;
+            }
+            const formData = new FormData();
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('file[]', fileInput.files[i]);
+            }
+
+            // $.ajax({
+            //     url: '/upload_files',
+            //     type: 'POST',
+            //     data: formData,
+            //     processData: false,   // 重要，告诉 jQuery 不要处理发送的数据
+            //     contentType: false,   // 重要，指定这样 jQuery 就不会设置内容类型
+            //     success: function(response) {
+            //         alert('Files uploaded successfully.');
+            //     },
+            //     error: function(err) {
+            //         console.error('Error:', err);
+            //         alert('Error uploading files.');
+            //     }
+            // });
+            $.ajax({
+                url: '/upload_files',
+                type: 'POST',
+                data: formData,
+                processData: false,   // 告诉 jQuery 不要处理发送的数据
+                contentType: false,   // 指定这样 jQuery 就不会设置内容类型
+                success: function(response) {
+                    alert('Files uploaded successfully.');
+
+                    // 假设服务器返回的响应包含了识别结果
+                    // 打印整个响应
+                    console.log('Response:', response);
+
+                    // 检查响应中是否有 OCR 结果
+                    if(response.ocr_results) {
+                        response.ocr_results.forEach((result, index) => {
+                            console.log('Result for file ' + index + ':', result);
+                            // 也可以在页面上展示结果
+                            // 例如，添加到一个列表或表格中
+                            $('#results').append('<li>' + result.join(', ') + '</li>');
+                        });
+                    }
+                },
+                error: function(err) {
+                    console.error('Error:', err);
+                    alert('Error uploading files.');
+                }
+            });
+
+        }
+
+        // 这个辅助函数合并文件列表
+        function FileListItems(files) {
+            const b = new ClipboardEvent("").clipboardData || new DataTransfer();
+            for (let i = 0, len = files.length; i<len; i++) b.items.add(files[i]);
+            return b.files;
+        }
+    </script>
+</body>
+</html>
+
